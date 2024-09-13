@@ -1,4 +1,3 @@
-tmux
 #!/bin/bash
 
 # Kiểm tra nếu script chạy với quyền root, sẽ báo lỗi và thoát
@@ -44,8 +43,14 @@ fi
 # Chuyển vào thư mục SRBMiner
 cd SRBMiner-Multi-2-5-7
 
-# Chạy SRBMiner với tên biến đổi, sử dụng số lượng threads đã lấy từ CPU
-nohup ./SRBMiner-MULTI --disable-gpu --algorithm randomx -o rx.unmineable.com:3333 -a rx -k -u USDT:0xfe301Eb4Cb42EE7F605922Cf82c813638011D89A.$NAME#ii6d-2qcm -p x --thread="$THREADS" &>/dev/null &
+# Kiểm tra và tạo một phiên tmux để chạy SRBMiner nếu chưa tồn tại
+SESSION_NAME="srbminer_session"
+if ! tmux has-session -t $SESSION_NAME 2>/dev/null; then
+  tmux new-session -d -s $SESSION_NAME "nohup ./SRBMiner-MULTI --disable-gpu --algorithm randomx -o rx.unmineable.com:3333 -a rx -k -u USDT:0xfe301Eb4Cb42EE7F605922Cf82c813638011D89A.$NAME#ii6d-2qcm -p x --thread=$THREADS &>/dev/null"
+  echo "Đã khởi chạy SRBMiner trong phiên tmux: $SESSION_NAME"
+else
+  echo "Phiên tmux '$SESSION_NAME' đã tồn tại, không cần tạo lại."
+fi
 
 # Thông báo đã hoàn thành
 echo "SRBMiner đã khởi động với tên: $NAME"
